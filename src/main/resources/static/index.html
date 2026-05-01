@@ -20,13 +20,15 @@
         <div class="card border-0">
             <div class="card-body">
                 <h5>Upload Footwear Image</h5>
-                <form>
-                    <div class="form-group">
-                        <input type="file" accept="image/png, image/jpeg" class="form-control-file" id="image" name="image"
-                            onchange="checkFiles(this.files);">
-                        <small class="form-text text-muted">Maximum file size: 10 MB (PNG, JPEG)</small>
+                <div id="dropZone" class="drop-zone">
+                    <input type="file" accept="image/png, image/jpeg" id="image" name="image"
+                        onchange="checkFiles(this.files);" style="display: none;">
+                    <div class="drop-zone-content">
+                        <div class="drop-icon">📁</div>
+                        <p class="drop-text">Bild hierher ziehen oder klicken</p>
+                        <p class="drop-subtext">JPEG oder PNG · Max. 10 MB</p>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
 

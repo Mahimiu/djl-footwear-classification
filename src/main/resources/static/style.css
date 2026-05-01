@@ -1,10 +1,24 @@
-/* Main Container Styling */
+/* Animated Background */
 body {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(-45deg, #10b981, #3b82f6, #8b5cf6, #ec4899, #f59e0b);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
     min-height: 100vh;
     padding-top: 40px;
     padding-bottom: 40px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .container-fluid {
@@ -37,29 +51,47 @@ h5 {
     margin-bottom: 30px;
 }
 
-/* Form Styling */
-.form-group label {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.form-control-file {
-    border: 2px dashed #10b981;
-    border-radius: 8px;
-    padding: 20px;
+/* Drop Zone */
+.drop-zone {
+    border: 3px dashed #10b981;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
     cursor: pointer;
+    background-color: #f0fdf4;
     transition: all 0.3s ease;
 }
 
-.form-control-file:hover {
+.drop-zone:hover {
     border-color: #059669;
-    background-color: #f0fdf4;
+    background-color: #dcfce7;
+    transform: scale(1.01);
 }
 
-.form-control-file:focus {
+.drop-zone.drag-over {
     border-color: #059669;
-    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+    background-color: #bbf7d0;
+    border-style: solid;
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.drop-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.drop-text {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.drop-subtext {
+    color: #999;
+    font-size: 14px;
+    margin: 0;
 }
 
 /* Result Container */
@@ -183,7 +215,6 @@ h5 {
         font-size: 28px;
     }
 
-    /* Stack columns on mobile */
     .results-container {
         grid-template-columns: 1fr;
         gap: 30px;

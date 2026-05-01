@@ -43,15 +43,12 @@ function checkFiles(files) {
             response.text().then(function (text) {
                 console.log("Raw response text:", text);
                 try {
-                    // Parse JSON response
                     const jsonData = JSON.parse(text);
                     console.log("Parsed JSON:", jsonData);
                     
-                    // Hide loading indicator
                     document.getElementById("loadingPart").style.display = "none";
                     document.getElementById("resultsPart").style.display = "block";
                     
-                    // Display results
                     displayResults(jsonData);
                 } catch (e) {
                     console.error("Error parsing JSON:", e);
@@ -60,7 +57,6 @@ function checkFiles(files) {
                     alert("Error processing the response: " + e.message);
                 }
             });
-
         }
     ).then(
         success => console.log(success)
@@ -78,23 +74,17 @@ function displayResults(jsonData) {
     
     let classifications = [];
     
-    // DJL Classifications format: {"class": "ClassName", "probability": 0.95}
-    // or array format: [{"className": "Boots", "probability": 0.95}, ...]
-    
     if (Array.isArray(jsonData)) {
-        // If it's an array
         classifications = jsonData.map(item => ({
             className: item.className || item.class || item.name,
             probability: parseFloat(item.probability || 0)
         }));
     } else if (jsonData.classes && Array.isArray(jsonData.classes)) {
-        // If it has a "classes" array property
         classifications = jsonData.classes.map(item => ({
             className: item.className || item.class || item.name,
             probability: parseFloat(item.probability || 0)
         }));
     } else if (typeof jsonData === 'object') {
-        // If it's a direct object with class names as keys
         for (const [key, value] of Object.entries(jsonData)) {
             if (key !== 'classes' && typeof value === 'number') {
                 classifications.push({
@@ -107,10 +97,8 @@ function displayResults(jsonData) {
     
     console.log("Extracted classifications:", classifications);
     
-    // Sort by probability descending
     classifications.sort((a, b) => b.probability - a.probability);
     
-    // Display top result
     if (classifications.length > 0) {
         const topResult = classifications[0];
         const topLabel = topResult.className || "Unknown";
@@ -123,14 +111,12 @@ function displayResults(jsonData) {
         document.getElementById("topResult").style.display = "flex";
     }
     
-    // Display all classifications
     let classificationHTML = "";
     classifications.forEach((item, index) => {
         const label = item.className || "Unknown";
         const probability = parseFloat(item.probability);
         const percentage = (probability * 100).toFixed(1);
         
-        // Skip the top result from the list
         if (index === 0) return;
         
         classificationHTML += `
@@ -149,3 +135,36 @@ function displayResults(jsonData) {
     document.getElementById("classificationList").innerHTML = classificationHTML;
     console.log("Results displayed");
 }
+
+// Drag & Drop Functionality
+document.addEventListener('DOMContentLoaded', function () {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('image');
+
+    if (!dropZone || !fileInput) return;
+
+    // Click on dropzone -> open file dialog
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Drag over -> highlight
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+
+    // Drag leave -> remove highlight
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+    });
+
+    // Drop -> process file
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            checkFiles(files);
+        }
+    });
+});
