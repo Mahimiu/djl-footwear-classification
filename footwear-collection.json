@@ -1,0 +1,98 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-1111-2222-3333-444455556666",
+		"name": "Footwear Classification API",
+		"description": "Postman Collection für die Footwear Classification Spring Boot App.\n\nVariable `baseUrl` setzen:\n- Lokal: http://localhost:8080\n- Azure: https://djl-footwear-galmmax1-...azurewebsites.net",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET /ping - Health ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/ping",
+					"host": ["{{baseUrl}}"],
+					"path": ["ping"]
+				},
+				"description": "Simpler Health-Check. Erwartet: 'Classification app is up and running!'"
+			},
+			"response": []
+		},
+		{
+			"name": "GET /health - Application status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": ["{{baseUrl}}"],
+					"path": ["health"]
+				},
+				"description": "Erwartet: { status: 'UP', timestamp: '...' }"
+			},
+			"response": []
+		},
+		{
+			"name": "GET /info - Model info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/info",
+					"host": ["{{baseUrl}}"],
+					"path": ["info"]
+				},
+				"description": "Liefert Model-Metadaten (Name, Klassen, Framework, Architektur)"
+			},
+			"response": []
+		},
+		{
+			"name": "GET /classes - Available classes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/classes",
+					"host": ["{{baseUrl}}"],
+					"path": ["classes"]
+				},
+				"description": "Liste der Klassen: Boots, Sandals, Shoes, Slippers"
+			},
+			"response": []
+		},
+		{
+			"name": "POST /analyze - Classify image",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "image",
+							"type": "file",
+							"description": "Bild eines Schuhs (JPG/PNG). Datei in Postman manuell auswählen.",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/analyze",
+					"host": ["{{baseUrl}}"],
+					"path": ["analyze"]
+				},
+				"description": "Lädt ein Bild hoch und gibt Klassifikations-Wahrscheinlichkeiten zurück."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
