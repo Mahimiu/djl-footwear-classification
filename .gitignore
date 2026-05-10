@@ -35,3 +35,5 @@ build/
 ### Others ###
 /ut-zap50k-images-square
 /ut-zap50k-images-square-small
+/models-resnet18
+/models-resnet50
