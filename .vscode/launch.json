@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run FootwearApplication",
+      "request": "launch",
+      "mainClass": "ch.zhaw.deeplearningjava.footwear.FootwearApplication",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "dev"
+      }
+    },
+    {
+      "type": "java",
+      "name": "Debug FootwearApplication",
+      "request": "launch",
+      "mainClass": "ch.zhaw.deeplearningjava.footwear.FootwearApplication",
+      "vmArgs": "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "dev",
+        "LOGGING_LEVEL_ROOT": "DEBUG"
+      }
+    }
+  ]
+}

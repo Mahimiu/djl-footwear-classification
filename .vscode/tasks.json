@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "maven: clean package",
+      "type": "shell",
+      "command": "mvn clean package -DskipTests",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "maven: test",
+      "type": "shell",
+      "command": "mvn test",
+      "group": "test"
+    },
+    {
+      "label": "docker: build image",
+      "type": "shell",
+      "command": "docker build -t galmmax1/djl-footwear-classification:latest .",
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: run container",
+      "type": "shell",
+      "command": "docker run --rm -p 8080:8080 galmmax1/djl-footwear-classification:latest",
+      "problemMatcher": []
+    }
+  ]
+}

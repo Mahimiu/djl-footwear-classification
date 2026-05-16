@@ -1,19 +1,47 @@
-# Usage
-# docker build -t mosazhaw/djl-footwear-classification .
-# docker run --name djl-footwear-classification -p 8080:8080 -d mosazhaw/djl-footwear-classification
+# syntax=docker/dockerfile:1.6
 
-FROM eclipse-temurin:25-jdk-noble
+# ============================================================
+# Stage 1: Build the application (JDK + Maven)
+# ============================================================
+FROM eclipse-temurin:25-jdk-noble AS builder
 
-# Copy Files
-WORKDIR /usr/src/app
-COPY models models
-COPY src src
+WORKDIR /build
+
+# Maven-Wrapper zuerst kopieren (Layer-Cache: pom.xml ändert sich selten)
 COPY .mvn .mvn
-COPY pom.xml mvnw ./
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
 
-# Install
-RUN ./mvnw -Dmaven.test.skip=true package
+# Dependencies vorab laden (gecached solange pom.xml gleich bleibt)
+RUN ./mvnw dependency:go-offline -B
 
-# Docker Run Command
+# Source code und Build
+COPY src src
+RUN ./mvnw clean package -DskipTests -B
+
+# ============================================================
+# Stage 2: Runtime (nur JRE - schlanker und sicherer)
+# ============================================================
+FROM eclipse-temurin:25-jre-noble
+
+# OCI Image-Metadaten
+LABEL org.opencontainers.image.title="DJL Footwear Classification"
+LABEL org.opencontainers.image.description="Spring Boot + DJL footwear image classification"
+LABEL org.opencontainers.image.source="https://github.com/Mahimiu/djl-footwear-classification"
+
+WORKDIR /app
+
+# Non-Root User anlegen (Security)
+RUN groupadd --system spring && useradd --system --gid spring spring
+USER spring:spring
+
+# Nur die fertige JAR aus dem Builder kopieren - keine Build-Tools, kein Source
+COPY --from=builder --chown=spring:spring /build/target/playground-0.0.1-SNAPSHOT.jar app.jar
+COPY --chown=spring:spring models models
+
+# Container-aware JVM-Settings (nutzt nur Memory, das dem Container zugewiesen ist)
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
 EXPOSE 8080
-CMD ["java","-jar","/usr/src/app/target/playground-0.0.1-SNAPSHOT.jar"]
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
