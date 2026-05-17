@@ -8,7 +8,27 @@ Das Projekt entstand im Rahmen des Moduls **MDM (Model Deployment & Maintenance)
 
 **Azure App Service**: [https://djl-footwear-galmmax1-hcduhhgdbnaph3cp.switzerlandnorth-01.azurewebsites.net](https://djl-footwear-galmmax1-hcduhhgdbnaph3cp.switzerlandnorth-01.azurewebsites.net)
 
-> Beim ersten Aufruf braucht die App ggf. 30-60 Sekunden, um aus dem Cold-Start aufzuwachen.
+> Beim ersten Aufruf braucht die App ggf. 30–60 Sekunden, um aus dem Cold-Start aufzuwachen.
+
+## 🎁 Bonus-Themen Projekt 2
+
+Dieses Projekt deckt zwei auf Moodle angemeldete Bonus-Themen ab:
+
+| Bonus-Thema | Umsetzung |
+|---|---|
+| **UI / Backend** | Drag-&-Drop-Upload, animierter Gradient-Hintergrund, 5 REST-Endpoints (`/ping`, `/health`, `/info`, `/classes`, `/analyze`), Swagger UI für interaktive API-Dokumentation |
+| **Dependency Management & Project Setup in VS Code** | Multi-Stage Dockerfile (-31% Image-Grösse, 980 MB → 673 MB), VS Code Workspace Config (`launch.json`, `tasks.json`, `settings.json`, `extensions.json`), `.editorconfig` |
+
+### Multi-Stage Dockerfile
+
+- **Stage 1 (Builder)**: JDK + Maven, baut die JAR
+- **Stage 2 (Runtime)**: nur JRE, Non-Root User (`spring`), container-aware JVM-Settings (`-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0`)
+- **Layer-Caching**: Dependencies werden separat geladen und gecached → deutlich schnellere Rebuilds bei reinen Code-Änderungen
+- **OCI-Labels** für Image-Metadaten (Titel, Beschreibung, Source-URL)
+
+### VS Code Workspace
+
+Beim Öffnen des Repos in VS Code werden automatisch passende Extensions vorgeschlagen (Java Pack, Spring Boot Dev Pack, Docker, EditorConfig). Über `F5` startet die App mit Dev-Profil und Debugger, über `Ctrl+Shift+B` läuft `mvn clean package`. Die Settings sorgen für konsistente Java-Formatierung — ergänzt durch `.editorconfig`, das plattform- und IDE-übergreifend wirkt (auch IntelliJ, Eclipse, Vim).
 
 ## ✨ Features
 
@@ -17,37 +37,34 @@ Das Projekt entstand im Rahmen des Moduls **MDM (Model Deployment & Maintenance)
 - 🎨 **Animierter Gradient-Hintergrund** für ein modernes Look-&-Feel
 - 🔌 **REST-API** mit fünf Endpoints (Ping, Health, Info, Classes, Analyze)
 - 📖 **Swagger UI** für interaktive API-Dokumentation
-- 🐳 **Docker-Image** auf Docker Hub
+- 🐳 **Multi-Stage Docker-Image** auf Docker Hub (Bonus)
+- 💻 **VS Code Workspace Setup** mit Run/Debug/Tasks (Bonus)
 - ☁️ **Azure App Service Deployment**
 - 🤖 **CI/CD via GitHub Actions** (automatischer Build & Push bei jedem Commit)
 - 🧪 **Postman-Collection** für API-Tests
 - 📐 **Modellvergleich** ResNet18 vs. ResNet50 (siehe [MODELS.md](MODELS.md))
 
 ## 🏗️ Architektur
-
-```
-┌─────────────────┐      HTTP        ┌────────────────────────┐
-│  Browser /      │ ───────────────► │  Spring Boot App       │
-│  Postman        │ ◄─────────────── │  (Port 8080)           │
-└─────────────────┘                   │                        │
-                                      │  ┌──────────────────┐  │
-                                      │  │ Classification   │  │
-                                      │  │ Controller       │  │
-                                      │  └────────┬─────────┘  │
-                                      │           │            │
-                                      │           ▼            │
-                                      │  ┌──────────────────┐  │
-                                      │  │ Inference (DJL)  │  │
-                                      │  └────────┬─────────┘  │
-                                      │           │            │
-                                      │           ▼            │
-                                      │  ┌──────────────────┐  │
-                                      │  │ shoeclassifier   │  │
-                                      │  │ .params (PyTorch)│  │
-                                      │  └──────────────────┘  │
-                                      └────────────────────────┘
-```
-
++-----------------+      HTTP        +------------------------+
+|  Browser /      | ---------------> |  Spring Boot App       |
+|  Postman        | <--------------- |  (Port 8080)           |
++-----------------+                   |                        |
+|  +------------------+  |
+|  | Classification   |  |
+|  | Controller       |  |
+|  +--------+---------+  |
+|           |            |
+|           v            |
+|  +------------------+  |
+|  | Inference (DJL)  |  |
+|  +--------+---------+  |
+|           |            |
+|           v            |
+|  +------------------+  |
+|  | shoeclassifier   |  |
+|  | .params (PyTorch)|  |
+|  +------------------+  |
++------------------------+
 Das Modell wird beim Start in den Speicher geladen; jede Anfrage triggert einen Forward-Pass durch das Netzwerk.
 
 ## 🛠️ Tech-Stack
@@ -57,10 +74,11 @@ Das Modell wird beim Start in den Speicher geladen; jede Anfrage triggert einen 
 | Sprache | Java 25 |
 | Framework | Spring Boot 3 |
 | ML | Deep Java Library (DJL) 0.36.0 + PyTorch 2.7.1 |
-| Build | Maven |
+| Build | Maven (mit Wrapper) |
 | Frontend | HTML, CSS, JavaScript (Vanilla) |
 | API-Doku | springdoc-openapi (Swagger UI) |
-| Containerisierung | Docker |
+| Containerisierung | Docker (Multi-Stage) |
+| Dev-Setup | VS Code Workspace + `.editorconfig` |
 | CI/CD | GitHub Actions |
 | Hosting | Azure App Service |
 | Modell | ResNet50 (Transfer Learning) |
@@ -92,6 +110,8 @@ Auf Windows:
 ```cmd
 mvnw.cmd spring-boot:run
 ```
+
+In VS Code: einfach `F5` drücken — die Run-Konfiguration ist im Workspace vorbereitet.
 
 Anschliessend ist die App unter [http://localhost:8080](http://localhost:8080) erreichbar.
 
@@ -232,7 +252,7 @@ Alle GET-Endpoints können direkt mit **Send** ausgeführt werden. Für `POST /a
 Die App läuft auf einem Azure App Service mit folgendem Setup:
 
 - **Region**: Switzerland North
-- **Container**: Docker
+- **Container**: Docker (Multi-Stage Build)
 - **Image-Quelle**: Docker Hub (`galmmax1/djl-footwear-classification:latest`)
 - **Port**: 8080
 
@@ -252,12 +272,15 @@ Bei jedem Push auf `main` läuft automatisch der Workflow [`.github/workflows/de
 Status der Builds: [Actions-Tab im Repo](https://github.com/Mahimiu/djl-footwear-classification/actions)
 
 ## 📁 Projektstruktur
-
-```
 djl-footwear-classification/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml              # GitHub Actions Workflow
+├── .vscode/                        # Workspace-Konfig (Bonus)
+│   ├── launch.json                 # Run/Debug-Konfigurationen
+│   ├── tasks.json                  # Maven + Docker Tasks
+│   ├── settings.json               # Java-Format, Editor
+│   └── extensions.json             # Empfohlene Extensions
 ├── models/                         # Trainierte Modelle
 │   ├── shoeclassifier-0002.params
 │   └── synset.txt
@@ -267,22 +290,22 @@ djl-footwear-classification/
 │   └── main/
 │       ├── java/ch/zhaw/deeplearningjava/footwear/
 │       │   ├── ClassificationController.java   # REST-Endpoints
-│       │   ├── FootwearApplication.java         # Spring Boot Entry-Point
-│       │   ├── Inference.java                   # DJL-Inferenz-Logik
-│       │   ├── Models.java                       # Modell-Definition
-│       │   └── Training.java                    # Training-Code
+│       │   ├── FootwearApplication.java        # Spring Boot Entry-Point
+│       │   ├── Inference.java                  # DJL-Inferenz-Logik
+│       │   ├── Models.java                     # Modell-Definition
+│       │   └── Training.java                   # Training-Code
 │       └── resources/
 │           ├── application.properties
 │           └── static/
-│               ├── index.html                   # Frontend
+│               ├── index.html                  # Frontend
 │               ├── script.js
 │               └── style.css
-├── Dockerfile
+├── .editorconfig                   # IDE-übergreifende Format-Regeln (Bonus)
+├── Dockerfile                      # Multi-Stage Build (Bonus)
 ├── footwear-collection.json        # Postman-Collection
 ├── MODELS.md                       # Modellvergleich
 ├── pom.xml
 └── README.md                       # Diese Datei
-```
 
 ## 📜 Lizenz
 
